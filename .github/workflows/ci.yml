@@ -1,0 +1,27 @@
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    strategy:
+      matrix:
+        node: [20, 22]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node }}
+      - run: npm install --ignore-scripts --no-audit --no-fund
+      - run: npm run ci
+      - name: MCP import smoke test
+        run: node -e "import('./src/mcp.js').then(m => { if (!m.buildMcpServer()) process.exit(1) })"
+      - name: Package smoke test
+        run: npm pack --dry-run
