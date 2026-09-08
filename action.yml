@@ -1,0 +1,36 @@
+name: Converact Verify
+description: Verify Converact change contracts in CI.
+author: octoteo
+inputs:
+  change-id:
+    description: Change ID to verify.
+    required: false
+    default: ''
+  all-active:
+    description: Verify every non-accepted, non-aborted change.
+    required: false
+    default: 'false'
+runs:
+  using: composite
+  steps:
+    - name: Install Converact dependencies
+      shell: bash
+      run: npm install --prefix "$GITHUB_ACTION_PATH" --ignore-scripts --no-audit --no-fund
+    - name: Verify contracts
+      shell: bash
+      env:
+        CHANGE_ID: ${{ inputs.change-id }}
+        ALL_ACTIVE: ${{ inputs.all-active }}
+      run: |
+        if [[ "$ALL_ACTIVE" == "true" ]]; then
+          node "$GITHUB_ACTION_PATH/src/cli.js" verify --all-active --json
+        elif [[ -n "$CHANGE_ID" ]]; then
+          node "$GITHUB_ACTION_PATH/src/cli.js" verify "$CHANGE_ID" --json
+          node "$GITHUB_ACTION_PATH/src/cli.js" converge "$CHANGE_ID" --json
+        else
+          echo "Set change-id or all-active=true" >&2
+          exit 2
+        fi
+branding:
+  icon: check-circle
+  color: blue

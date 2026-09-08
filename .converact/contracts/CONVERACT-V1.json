@@ -1,0 +1,40 @@
+{
+  "schemaVersion": 1,
+  "id": "BASE-CONVERACT-V1",
+  "title": "Converact v1 product contract",
+  "intent": "Provide a model-agnostic contract, evidence, and convergence control plane for autonomous software engineering agents.",
+  "riskLevel": "L2",
+  "status": "accepted",
+  "constraints": [
+    "CLI and MCP adapters share the same Core semantics.",
+    "Changing contract or implementation state invalidates stale evidence.",
+    "Acceptance is blocked when MUST requirements are not satisfied."
+  ],
+  "nonGoals": [
+    "Owning the coding model runtime.",
+    "Providing production deployment or sandbox orchestration in v1."
+  ],
+  "standards": [],
+  "requirements": [
+    {
+      "id": "REQ-CORE-001",
+      "type": "invariant",
+      "statement": "A change cannot be accepted unless all MUST requirements have fresh passing evidence.",
+      "priority": "must",
+      "scope": ["src/**", "test/**"],
+      "checks": ["CHK-CORE-001"]
+    },
+    {
+      "id": "REQ-CORE-002",
+      "type": "compatibility",
+      "statement": "Any coding agent with shell access can use the CLI without MCP support.",
+      "priority": "must",
+      "scope": ["src/cli.js", "src/core.js"],
+      "checks": ["CHK-CORE-002"]
+    }
+  ],
+  "checks": [
+    {"id":"CHK-CORE-001","kind":"command","description":"Core tests pass.","command":"npm test"},
+    {"id":"CHK-CORE-002","kind":"command","description":"CLI syntax and version command pass.","command":"npm run check && node src/cli.js --version"}
+  ]
+}
